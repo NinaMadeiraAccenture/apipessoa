@@ -1,9 +1,13 @@
 package br.com.accenture.apipessoa.resources;
 
+import br.com.accenture.apipessoa.message.KafkaProducerMessage;
 import br.com.accenture.apipessoa.domain.dto.PessoaDTO;
 import br.com.accenture.apipessoa.services.PessoaService;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,6 +27,8 @@ import java.util.stream.Collectors;
 @RequestMapping(value = "/pessoa")
 public class PessoaResource {
 
+    private final Logger LOG = LoggerFactory.getLogger(PessoaResource.class);
+
     private static final String ID = "/{id}";
 
     @Autowired
@@ -30,6 +36,9 @@ public class PessoaResource {
 
     @Autowired
     private PessoaService service;
+
+    @Autowired
+    private KafkaProducerMessage kafkaProducerMessage;
 
     @GetMapping(value = ID)
     public ResponseEntity<PessoaDTO> findById(@PathVariable Integer id) {
@@ -46,6 +55,10 @@ public class PessoaResource {
     public ResponseEntity<PessoaDTO> create(@Valid @RequestBody PessoaDTO obj) {
         URI uri = ServletUriComponentsBuilder
                 .fromCurrentRequest().path(ID).buildAndExpand(service.create(obj).getId()).toUri();
+        LOG.info("USANDO EVENTOS/MENSAGENS KAFKA - Producer Pessoa Post information: {}", obj);
+
+        kafkaProducerMessage.sendMessage(obj);
+
         return ResponseEntity.created(uri).build();
     }
 
