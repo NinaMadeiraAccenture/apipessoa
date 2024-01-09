@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.validation.Valid;
 import java.net.URI;
@@ -52,14 +53,16 @@ public class PessoaResource {
     }
 
     @PostMapping
-    public ResponseEntity<PessoaDTO> create(@Valid @RequestBody PessoaDTO obj) {
-        URI uri = ServletUriComponentsBuilder
-                .fromCurrentRequest().path(ID).buildAndExpand(service.create(obj).getId()).toUri();
-        LOG.info("USANDO EVENTOS/MENSAGENS KAFKA - Producer Pessoa Post information: {}", obj);
+    public ResponseEntity<PessoaDTO> create(@Valid @RequestBody PessoaDTO obj,  UriComponentsBuilder uriBuilder) {
+        var pessoaDTO = mapper.map(service.create(obj), PessoaDTO.class);
+        if(null != pessoaDTO.getId()) {
+            LOG.info("USANDO EVENTOS/MENSAGENS KAFKA - Producer Pessoa Post information: {}", pessoaDTO);
 
-        kafkaProducerMessage.sendMessage(obj);
+            kafkaProducerMessage.sendMessage(pessoaDTO);
+        }
+        URI endereco = uriBuilder.path("/pessoa/{id}").buildAndExpand(pessoaDTO.getId()).toUri();
+        return ResponseEntity.created(endereco).body(pessoaDTO);
 
-        return ResponseEntity.created(uri).build();
     }
 
     @PutMapping(value = ID)
