@@ -4,8 +4,8 @@ import br.com.accenture.apipessoa.exceptions.ObjectNotFoundException;
 import br.com.accenture.apipessoa.domain.Pessoa;
 import br.com.accenture.apipessoa.domain.dto.PessoaDTO;
 import br.com.accenture.apipessoa.repositories.PessoaRepository;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -13,11 +13,16 @@ import java.util.Optional;
 
 @Service
 public class PessoaService {
-    @Autowired
-    private PessoaRepository repository;
 
-    @Autowired
-    private ModelMapper mapper;
+    private final PessoaRepository repository;
+
+    private final ModelMapper mapper;
+
+    public PessoaService(PessoaRepository repository, ModelMapper mapper) {
+        this.repository = repository;
+        this.mapper = mapper;
+    }
+
     @Cacheable("pessoas")
     public Pessoa findById(Integer id) {
         Optional<Pessoa> obj = repository.findById(id);

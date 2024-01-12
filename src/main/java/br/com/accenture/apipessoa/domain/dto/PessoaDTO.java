@@ -5,14 +5,14 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.io.Serializable;
 import java.time.LocalDate;
+
 @Setter
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
 public class PessoaDTO{
+
     private Integer id;
     private String nome;
     @JsonFormat(pattern="dd/MM/yyyy")
