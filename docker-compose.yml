@@ -1,0 +1,13 @@
+version: "3.9"
+services:
+  # aplicação Redis
+  redis:
+    image: redis
+    restart: always
+    networks:
+      - net_principal
+    ports:
+      - 6379:6379
+
+networks:
+  net_principal:
