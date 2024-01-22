@@ -11,6 +11,7 @@ Api Pessoa é um microserviço de aplicação backend. O microserviço fornece o
 - Java
 - Spring Boot
 - JPA / Hibernate
+- JWT
 - Maven
 - Docker: Docker Compose
 - Banco de dados: MySQl e Redis
